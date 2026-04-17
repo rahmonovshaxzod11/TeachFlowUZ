@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TeachFlowUZ — Pedagogika bo'yicha zamonaviy ta'lim platformasi. Video darslar, testlar va AI bilan tekshirish.">
+    <title>{% block title %}TeachFlowUZ{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🎓</div>
+                    <div>
+                        <div class="sidebar-logo-text">TeachFlowUZ</div>
+                        <div class="sidebar-logo-sub">Ta'lim Platformasi</div>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Asosiy</div>
+                <a href="/" class="nav-item" id="nav-home">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Bosh sahifa</span>
+                </a>
+                <a href="/modules" class="nav-item" id="nav-modules">
+                    <span class="nav-item-icon">📦</span>
+                    <span>Modullar</span>
+                    <span class="nav-item-badge">{{ module_count|default(3) }}</span>
+                </a>
+
+                <div class="nav-section-title">Modullar</div>
+                {% if modules_nav is defined %}
+                    {% for m in modules_nav %}
+                    <a href="/module/{{ m.id }}" class="nav-item" id="nav-module-{{ m.id }}">
+                        <span class="nav-item-icon">{{ m.icon }}</span>
+                        <span>{{ m.title }}</span>
+                    </a>
+                    {% endfor %}
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                <div class="nav-section-title">Boshqaruv</div>
+                <a href="/admin" class="nav-item" id="nav-admin">
+                    <span class="nav-item-icon">⚙️</span>
+                    <span>Admin Panel</span>
+                </a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+                    <div class="header-breadcrumb">
+                        {% block breadcrumb %}
+                        <a href="/">TeachFlowUZ</a>
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" title="Qidiruv">🔍</button>
+                    <button class="header-btn" title="Bildirishnomalar">🔔</button>
+                    {% if current_user.is_authenticated %}
+                    <div class="user-avatar" title="Profil" style="display:flex;align-items:center;justify-content:center;font-weight:bold;">
+                        {{ current_user.username[0].upper() }}
+                    </div>
+                    <span style="margin-left:10px;font-weight:600;color:var(--text-primary);">{{ current_user.username }}</span>
+                    <a href="/logout" class="btn btn-secondary btn-sm" style="margin-left:15px;padding:6px 12px;font-size:0.85rem;">Chiqish</a>
+                    {% else %}
+                    <a href="/login" class="btn btn-secondary btn-sm" style="margin-right:10px;padding:6px 12px;font-size:0.85rem;">Kirish</a>
+                    <a href="/register" class="btn btn-primary btn-sm" style="padding:6px 12px;font-size:0.85rem;">Ro'yxatdan o'tish</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <div class="flash-messages" style="margin-bottom: 20px;">
+                      {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="padding:15px; border-radius:var(--border-radius-md); 
+                             background-color:{% if category == 'success' %}rgba(16,185,129,0.1){% elif category == 'danger' %}rgba(239,68,68,0.1){% else %}rgba(59,130,246,0.1){% endif %};
+                             border: 1px solid {% if category == 'success' %}var(--accent-success){% elif category == 'danger' %}var(--accent-danger){% else %}var(--accent-primary){% endif %};
+                             color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;">
+                          {{ message }}
+                          <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.2rem;">✕</button>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Processing Overlay -->
+    <div class="processing-overlay" id="processing-overlay">
+        <div class="processing-content">
+            <div class="processing-spinner"></div>
+            <div class="processing-title">AI Tekshirmoqda...</div>
+            <div class="processing-subtitle">Iltimos, kuting. Materialingiz tahlil qilinmoqda.</div>
+            <div class="processing-steps">
+                <div class="processing-step" id="step-1">
+                    <span class="processing-step-icon">⏳</span>
+                    <span>Fayldan matn ajratilmoqda...</span>
+                </div>
+                <div class="processing-step" id="step-2">
+                    <span class="processing-step-icon">⏳</span>
+                    <span>Rasmlar tahlil qilinmoqda...</span>
+                </div>
+                <div class="processing-step" id="step-3">
+                    <span class="processing-step-icon">⏳</span>
+                    <span>AI baho qo'ymoqda...</span>
+                </div>
+                <div class="processing-step" id="step-4">
+                    <span class="processing-step-icon">⏳</span>
+                    <span>Feedback tayyorlanmoqda...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

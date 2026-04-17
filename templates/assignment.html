@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }} — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<a href="/module/{{ assignment.module.id }}">{{ assignment.module.title }}</a>
+<span class="separator">/</span>
+<span class="current">{{ assignment.title }}</span>
+{% endblock %}
+
+{% block content %}
+<a href="/module/{{ assignment.module.id }}" class="back-link">← {{ assignment.module.title }}ga qaytish</a>
+
+<!-- Assignment Info -->
+<div class="assignment-info animate-fade-in">
+    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;">
+        <div class="card-icon" style="width:52px;height:52px;font-size:1.5rem;">
+            {% if assignment.assignment_type == 'presentation' %}📊
+            {% elif assignment.assignment_type == 'video' %}🎬
+            {% else %}📄{% endif %}
+        </div>
+        <div>
+            <h1 class="assignment-title" style="margin-bottom:4px;">{{ assignment.title }}</h1>
+            <div style="display:flex;gap:12px;align-items:center;">
+                <span class="card-tag">{{ assignment.assignment_type }}</span>
+                <span style="font-size:0.8rem;color:var(--text-tertiary);">{{ assignment.module.title }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="assignment-description">{{ assignment.description }}</div>
+    <div class="accepted-formats" style="margin-top:20px;">
+        <span style="font-size:0.8rem;color:var(--text-tertiary);margin-right:8px;">Qabul qilinadigan formatlar:</span>
+        {% for fmt in assignment.accepted_formats.split(',') %}
+        <span class="format-badge {{ fmt.strip() }}">{{ fmt.strip().upper() }}</span>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Upload Zone -->
+<form id="submission-form" action="/submit/{{ assignment.id }}" method="POST" enctype="multipart/form-data"
+      onsubmit="showProcessing(); return true;">
+    <div class="upload-zone animate-fade-in-delayed delay-2" id="upload-zone">
+        <div class="upload-zone-icon">📤</div>
+        <div class="upload-zone-title">Faylni bu yerga tashlang yoki bosing</div>
+        <div class="upload-zone-subtitle">
+            Qabul qilinadi: {{ assignment.accepted_formats.upper() }} | Maksimal hajm: 50MB
+        </div>
+        <input type="file" name="file" id="file-input"
+               accept="{% for fmt in assignment.accepted_formats.split(',') %}.{{ fmt.strip() }}{% if not loop.last %},{% endif %}{% endfor %}"
+               required>
+    </div>
+
+    <div class="upload-file-info" id="file-info"></div>
+
+    <div style="margin-top:24px;text-align:center;">
+        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+            🚀 AI ga Yuborish — Tekshirtirish
+        </button>
+    </div>
+</form>
+
+<!-- Previous Submissions -->
+{% if submissions %}
+<div style="margin-top:48px;">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">📋 Avvalgi Yuborilgan Ishlar</h2>
+            <p class="section-subtitle">{{ submissions|length }} ta ish yuborilgan</p>
+        </div>
+    </div>
+
+    <div class="lesson-list">
+        {% for sub in submissions %}
+        <a href="/result/{{ sub.id }}" class="lesson-item">
+            <div class="lesson-number" style="font-size:1.2rem;">
+                {% if sub.file_type == 'pdf' %}📄
+                {% elif sub.file_type == 'docx' %}📝
+                {% elif sub.file_type == 'pptx' %}📊
+                {% elif sub.file_type in ['mp4', 'avi', 'mov'] %}🎬
+                {% else %}📁{% endif %}
+            </div>
+            <div class="lesson-info">
+                <div class="lesson-title">{{ sub.file_name }}</div>
+                <div class="lesson-meta">{{ sub.submitted_at.strftime('%d.%m.%Y %H:%M') if sub.submitted_at else '' }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                {% if sub.status == 'completed' and sub.score is not none %}
+                <span style="font-family:var(--font-heading);font-weight:700;font-size:1.1rem;
+                    {% if sub.score >= 80 %}color:var(--accent-success);
+                    {% elif sub.score >= 60 %}color:var(--accent-secondary);
+                    {% elif sub.score >= 40 %}color:var(--accent-warning);
+                    {% else %}color:var(--accent-danger);{% endif %}">
+                    {{ sub.score|int }}/100
+                </span>
+                {% endif %}
+                <span class="status-badge {{ sub.status }}">
+                    {% if sub.status == 'pending' %}⏳ Kutilmoqda
+                    {% elif sub.status == 'processing' %}⚙️ Tekshirilmoqda
+                    {% elif sub.status == 'completed' %}✅ Tayyor
+                    {% else %}❌ Xatolik{% endif %}
+                </span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initFileUpload('upload-zone', 'file-info', 'file-input');
+    });
+</script>
+{% endblock %}

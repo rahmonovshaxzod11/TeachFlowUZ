@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.title }} — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<a href="/modules">Modullar</a>
+<span class="separator">/</span>
+<span class="current">{{ module.title }}</span>
+{% endblock %}
+
+{% block content %}
+<a href="/modules" class="back-link">← Modullarga qaytish</a>
+
+<!-- Module Header -->
+<div class="hero" style="padding: 36px 40px; margin-bottom: 32px;">
+    <div class="hero-content">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+            <div class="card-icon" style="width:56px;height:56px;font-size:1.8rem;">{{ module.icon }}</div>
+            <div>
+                <h1 style="font-size:1.8rem;margin-bottom:4px;">{{ module.title }}</h1>
+                <span class="card-tag">Modul {{ module.order }}</span>
+            </div>
+        </div>
+        <p style="font-size:0.95rem;max-width:800px;">{{ module.description }}</p>
+        <div class="hero-stats" style="margin-top:24px;">
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ module.lessons|length }}</div>
+                <div class="hero-stat-label">Darslar</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ module.tests|length }}</div>
+                <div class="hero-stat-label">Testlar</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ module.assignments|length }}</div>
+                <div class="hero-stat-label">Topshiriqlar</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" data-tab="lessons" onclick="switchTab('lessons')">
+        📹 Darslar ({{ module.lessons|length }})
+    </button>
+    <button class="tab" data-tab="tests" onclick="switchTab('tests')">
+        📝 Testlar ({{ module.tests|length }})
+    </button>
+    <button class="tab" data-tab="assignments" onclick="switchTab('assignments')">
+        📋 Topshiriqlar ({{ module.assignments|length }})
+    </button>
+</div>
+
+<!-- Lessons Tab -->
+<div class="tab-content active" id="tab-lessons">
+    {% if module.lessons %}
+    <div class="lesson-list">
+        {% for lesson in module.lessons %}
+        <a href="/lesson/{{ lesson.id }}" class="lesson-item animate-fade-in-delayed delay-{{ loop.index }}">
+            <div class="lesson-number">{{ loop.index }}</div>
+            <div class="lesson-info">
+                <div class="lesson-title">{{ lesson.title }}</div>
+                <div class="lesson-meta">{{ lesson.description[:80] }}{% if lesson.description|length > 80 %}...{% endif %}</div>
+            </div>
+            <div class="lesson-duration">
+                <span>🕐</span>
+                <span>{{ lesson.duration }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📹</div>
+        <div class="empty-state-text">Darslar hali qo'shilmagan</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tests Tab -->
+<div class="tab-content" id="tab-tests">
+    {% if module.tests %}
+    <div style="text-align:center;margin-bottom:24px;">
+        <p style="color:var(--text-secondary);margin-bottom:16px;">
+            Bu modulda {{ module.tests|length }} ta test savoli mavjud. Tayyor bo'lsangiz boshlang!
+        </p>
+        <a href="/test/{{ module.id }}" class="btn btn-primary btn-lg">
+            📝 Testni Boshlash
+        </a>
+    </div>
+
+    <div class="cards-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+        {% for test in module.tests %}
+        <div class="card" style="cursor:default;">
+            <div class="test-question-number">Savol {{ loop.index }}</div>
+            <p style="font-size:0.9rem;color:var(--text-secondary);margin-top:8px;">
+                {{ test.question[:100] }}{% if test.question|length > 100 %}...{% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <div class="empty-state-text">Testlar hali qo'shilmagan</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Assignments Tab -->
+<div class="tab-content" id="tab-assignments">
+    {% if module.assignments %}
+    <div class="cards-grid">
+        {% for assignment in module.assignments %}
+        <a href="/assignment/{{ assignment.id }}" class="card animate-fade-in-delayed delay-{{ loop.index }}">
+            <div class="card-header">
+                <div class="card-icon">
+                    {% if assignment.assignment_type == 'presentation' %}📊
+                    {% elif assignment.assignment_type == 'video' %}🎬
+                    {% else %}📄{% endif %}
+                </div>
+                <div>
+                    <div class="card-title">{{ assignment.title }}</div>
+                    <span class="card-tag">{{ assignment.assignment_type }}</span>
+                </div>
+            </div>
+            <p class="card-description">{{ assignment.description[:150] }}{% if assignment.description|length > 150 %}...{% endif %}</p>
+            <div class="accepted-formats">
+                {% for fmt in assignment.accepted_formats.split(',') %}
+                <span class="format-badge {{ fmt.strip() }}">{{ fmt.strip().upper() }}</span>
+                {% endfor %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">Topshiriqlar hali qo'shilmagan</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

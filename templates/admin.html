@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<span class="current">⚙️ Admin Panel</span>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h2 class="section-title">⚙️ Admin Panel</h2>
+        <p class="section-subtitle">Modullar, darslar, testlar va topshiriqlarni boshqaring</p>
+    </div>
+</div>
+
+<!-- Admin Tabs -->
+<div class="tabs">
+    <button class="tab admin-tab-btn active" data-tab="modules" onclick="switchAdminTab('modules')">
+        📦 Modullar ({{ modules|length }})
+    </button>
+    <button class="tab admin-tab-btn" data-tab="lessons" onclick="switchAdminTab('lessons')">
+        📹 Darslar ({{ lessons|length }})
+    </button>
+    <button class="tab admin-tab-btn" data-tab="tests" onclick="switchAdminTab('tests')">
+        📝 Testlar ({{ tests|length }})
+    </button>
+    <button class="tab admin-tab-btn" data-tab="assignments" onclick="switchAdminTab('assignments')">
+        📋 Topshiriqlar ({{ assignments|length }})
+    </button>
+</div>
+
+<!-- ═══════════ MODULES TAB ═══════════ -->
+<div class="admin-tab-content active" id="admin-tab-modules">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="openModuleModal()">+ Yangi Modul</button>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icon</th>
+                    <th>Nomi</th>
+                    <th>Tavsifi</th>
+                    <th>Darslar</th>
+                    <th>Testlar</th>
+                    <th>Topshiriqlar</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in modules %}
+                <tr>
+                    <td>{{ m.id }}</td>
+                    <td style="font-size:1.3rem;">{{ m.icon }}</td>
+                    <td style="font-weight:600;color:var(--text-primary);">{{ m.title }}</td>
+                    <td>{{ m.description[:60] }}{% if m.description and m.description|length > 60 %}...{% endif %}</td>
+                    <td>{{ m.lesson_count() }}</td>
+                    <td>{{ m.test_count() }}</td>
+                    <td>{{ m.assignment_count() }}</td>
+                    <td>
+                        <div class="admin-actions">
+                            <button class="btn btn-secondary btn-sm" 
+                                    onclick='openModuleModal({{ m.to_dict()|tojson }})'>✏️</button>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="deleteModule({{ m.id }})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════ LESSONS TAB ═══════════ -->
+<div class="admin-tab-content" id="admin-tab-lessons">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="openLessonModal()">+ Yangi Dars</button>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nomi</th>
+                    <th>Modul</th>
+                    <th>Davomiyligi</th>
+                    <th>Tartib</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in lessons %}
+                <tr>
+                    <td>{{ l.id }}</td>
+                    <td style="font-weight:600;color:var(--text-primary);">{{ l.title }}</td>
+                    <td>{{ l.module.title }}</td>
+                    <td>{{ l.duration }}</td>
+                    <td>{{ l.order }}</td>
+                    <td>
+                        <div class="admin-actions">
+                            <button class="btn btn-secondary btn-sm" 
+                                    onclick='openLessonModal({{ l.to_dict()|tojson }})'>✏️</button>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="deleteLesson({{ l.id }})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════ TESTS TAB ═══════════ -->
+<div class="admin-tab-content" id="admin-tab-tests">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="openTestModal()">+ Yangi Test</button>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Savol</th>
+                    <th>Modul</th>
+                    <th>To'g'ri javob</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tests %}
+                <tr>
+                    <td>{{ t.id }}</td>
+                    <td style="color:var(--text-primary);">{{ t.question[:80] }}{% if t.question|length > 80 %}...{% endif %}</td>
+                    <td>{{ t.module.title }}</td>
+                    <td><span class="card-tag">{{ t.correct_answer|upper }}</span></td>
+                    <td>
+                        <div class="admin-actions">
+                            <button class="btn btn-secondary btn-sm" 
+                                    onclick='openTestModal({{ t.to_dict()|tojson }})'>✏️</button>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="deleteTest({{ t.id }})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════ ASSIGNMENTS TAB ═══════════ -->
+<div class="admin-tab-content" id="admin-tab-assignments">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="openAssignmentModal()">+ Yangi Topshiriq</button>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nomi</th>
+                    <th>Modul</th>
+                    <th>Turi</th>
+                    <th>Formatlar</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in assignments %}
+                <tr>
+                    <td>{{ a.id }}</td>
+                    <td style="font-weight:600;color:var(--text-primary);">{{ a.title }}</td>
+                    <td>{{ a.module.title }}</td>
+                    <td><span class="card-tag">{{ a.assignment_type }}</span></td>
+                    <td>
+                        {% for fmt in a.accepted_formats.split(',') %}
+                        <span class="format-badge {{ fmt.strip() }}">{{ fmt.strip().upper() }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            <button class="btn btn-secondary btn-sm" 
+                                    onclick='openAssignmentModal({{ a.to_dict()|tojson }})'>✏️</button>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="deleteAssignment({{ a.id }})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- Module Modal -->
+<div class="modal-overlay" id="module-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="module-modal-title">Yangi Modul</h3>
+            <button class="modal-close" onclick="closeModal('module-modal')">✕</button>
+        </div>
+        <form class="modal-body" id="module-form" onsubmit="saveModule(event)">
+            <div class="form-group">
+                <label class="form-label">Modul nomi *</label>
+                <input type="text" name="title" class="form-input" required placeholder="Masalan: Pedagogika asoslari">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tavsifi</label>
+                <textarea name="description" class="form-textarea" placeholder="Modul haqida qisqacha ma'lumot..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Emoji Icon</label>
+                <input type="text" name="icon" class="form-input" value="📚" placeholder="📚">
+            </div>
+            <div class="modal-footer" style="padding:0;border:none;margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('module-modal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-primary">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lesson Modal -->
+<div class="modal-overlay" id="lesson-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="lesson-modal-title">Yangi Dars</h3>
+            <button class="modal-close" onclick="closeModal('lesson-modal')">✕</button>
+        </div>
+        <form class="modal-body" id="lesson-form" onsubmit="saveLesson(event)">
+            <div class="form-group">
+                <label class="form-label">Dars nomi *</label>
+                <input type="text" name="title" class="form-input" required placeholder="Masalan: Pedagogikaga kirish">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tavsifi</label>
+                <textarea name="description" class="form-textarea" placeholder="Dars haqida..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Video URL (YouTube embed)</label>
+                <input type="text" name="video_url" class="form-input" placeholder="https://www.youtube.com/embed/...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Davomiyligi</label>
+                <input type="text" name="duration" class="form-input" placeholder="25:00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Modul *</label>
+                <select name="module_id" class="form-select" required>
+                    {% for m in modules %}
+                    <option value="{{ m.id }}">{{ m.icon }} {{ m.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer" style="padding:0;border:none;margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('lesson-modal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-primary">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Test Modal -->
+<div class="modal-overlay" id="test-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="test-modal-title">Yangi Test</h3>
+            <button class="modal-close" onclick="closeModal('test-modal')">✕</button>
+        </div>
+        <form class="modal-body" id="test-form" onsubmit="saveTest(event)">
+            <div class="form-group">
+                <label class="form-label">Savol *</label>
+                <textarea name="question" class="form-textarea" required placeholder="Savolni yozing..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">A varianti *</label>
+                <input type="text" name="option_a" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">B varianti *</label>
+                <input type="text" name="option_b" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">C varianti *</label>
+                <input type="text" name="option_c" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">D varianti *</label>
+                <input type="text" name="option_d" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">To'g'ri javob *</label>
+                <select name="correct_answer" class="form-select" required>
+                    <option value="a">A</option>
+                    <option value="b">B</option>
+                    <option value="c">C</option>
+                    <option value="d">D</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Izoh (javob uchun)</label>
+                <textarea name="explanation" class="form-textarea" placeholder="Nima uchun bu javob to'g'ri..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Modul *</label>
+                <select name="module_id" class="form-select" required>
+                    {% for m in modules %}
+                    <option value="{{ m.id }}">{{ m.icon }} {{ m.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer" style="padding:0;border:none;margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('test-modal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-primary">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Assignment Modal -->
+<div class="modal-overlay" id="assignment-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" id="assignment-modal-title">Yangi Topshiriq</h3>
+            <button class="modal-close" onclick="closeModal('assignment-modal')">✕</button>
+        </div>
+        <form class="modal-body" id="assignment-form" onsubmit="saveAssignment(event)">
+            <div class="form-group">
+                <label class="form-label">Topshiriq nomi *</label>
+                <input type="text" name="title" class="form-input" required placeholder="Masalan: Dars ishlanmasi">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tavsifi *</label>
+                <textarea name="description" class="form-textarea" required placeholder="Topshiriq tavsifi..." style="min-height:160px;"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Topshiriq turi</label>
+                <select name="assignment_type" class="form-select">
+                    <option value="document">📄 Hujjat</option>
+                    <option value="presentation">📊 Taqdimot</option>
+                    <option value="video">🎬 Video</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Qabul qilinadigan formatlar (vergul bilan)</label>
+                <input type="text" name="accepted_formats" class="form-input" value="pdf,docx,pptx" 
+                       placeholder="pdf,docx,pptx,mp4">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Modul *</label>
+                <select name="module_id" class="form-select" required>
+                    {% for m in modules %}
+                    <option value="{{ m.id }}">{{ m.icon }} {{ m.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer" style="padding:0;border:none;margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('assignment-modal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-primary">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

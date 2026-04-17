@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }} — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<a href="/module/{{ lesson.module.id }}">{{ lesson.module.title }}</a>
+<span class="separator">/</span>
+<span class="current">{{ lesson.title }}</span>
+{% endblock %}
+
+{% block content %}
+<a href="/module/{{ lesson.module.id }}" class="back-link">← {{ lesson.module.title }}ga qaytish</a>
+
+<div class="lesson-detail-content">
+    <!-- Main content -->
+    <div>
+        <!-- Video Player -->
+        <div class="video-container animate-fade-in">
+            {% if lesson.video_url %}
+            <iframe src="{{ lesson.video_url }}" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    title="{{ lesson.title }}"></iframe>
+            {% else %}
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);">
+                <div style="text-align:center;">
+                    <div style="font-size:3rem;margin-bottom:16px;">🎬</div>
+                    <div>Video hali yuklanmagan</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Lesson Info -->
+        <div class="assignment-info animate-fade-in-delayed delay-1">
+            <h1 class="assignment-title">{{ lesson.title }}</h1>
+            <div style="display:flex;gap:16px;margin-bottom:16px;">
+                <div class="card-meta-item">
+                    <span class="icon">🕐</span>
+                    <span>{{ lesson.duration }}</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="icon">📦</span>
+                    <span>{{ lesson.module.title }}</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="icon">📹</span>
+                    <span>Dars {{ lesson.order }}</span>
+                </div>
+            </div>
+            <p class="assignment-description">{{ lesson.description }}</p>
+        </div>
+    </div>
+
+    <!-- Sidebar: Lesson List -->
+    <div class="lesson-sidebar">
+        <div class="assignment-info" style="padding:20px;">
+            <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px;">📹 Modul Darslari</h3>
+            <div class="lesson-list">
+                {% for other_lesson in lessons %}
+                <a href="/lesson/{{ other_lesson.id }}" 
+                   class="lesson-item" 
+                   style="{% if other_lesson.id == lesson.id %}background:rgba(124,58,237,0.1);border-color:var(--accent-primary);{% endif %}padding:12px 14px;">
+                    <div class="lesson-number" style="width:28px;height:28px;font-size:0.75rem;">{{ loop.index }}</div>
+                    <div class="lesson-info">
+                        <div class="lesson-title" style="font-size:0.85rem;">{{ other_lesson.title }}</div>
+                        <div class="lesson-meta" style="font-size:0.75rem;">{{ other_lesson.duration }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div style="display:flex;justify-content:space-between;margin-top:24px;">
+    {% if prev_lesson %}
+    <a href="/lesson/{{ prev_lesson.id }}" class="btn btn-secondary">
+        ← {{ prev_lesson.title }}
+    </a>
+    {% else %}
+    <div></div>
+    {% endif %}
+
+    {% if next_lesson %}
+    <a href="/lesson/{{ next_lesson.id }}" class="btn btn-primary">
+        {{ next_lesson.title }} →
+    </a>
+    {% else %}
+    <a href="/module/{{ lesson.module.id }}" class="btn btn-success">
+        ✅ Modulga qaytish
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

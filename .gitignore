@@ -1,0 +1,27 @@
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database
+instance/
+*.sqlite3
+teachflow.db
+
+# Uploads
+uploads/
+*.pdf
+*.docx
+*.mp4
+*.pptx
+
+# Ideas/VSCode
+.vscode/
+.idea/

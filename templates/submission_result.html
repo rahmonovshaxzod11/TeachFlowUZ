@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}AI Natija — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<a href="/module/{{ submission.assignment.module.id }}">{{ submission.assignment.module.title }}</a>
+<span class="separator">/</span>
+<a href="/assignment/{{ submission.assignment.id }}">{{ submission.assignment.title }}</a>
+<span class="separator">/</span>
+<span class="current">Natija</span>
+{% endblock %}
+
+{% block content %}
+<a href="/assignment/{{ submission.assignment.id }}" class="back-link">← Topshiriqqa qaytish</a>
+
+<div class="feedback-container">
+
+    <!-- Score Section -->
+    <div class="feedback-score-section animate-fade-in">
+        <div class="feedback-gauge">
+            <div class="feedback-gauge-bg" id="feedback-gauge" 
+                 style="--gauge-deg: 0deg; --gauge-color: {% if submission.score >= 80 %}var(--accent-success){% elif submission.score >= 60 %}var(--accent-secondary){% elif submission.score >= 40 %}var(--accent-warning){% else %}var(--accent-danger){% endif %};">
+                <div class="feedback-gauge-inner">
+                    <span class="feedback-gauge-value" id="gauge-value" style="
+                        color: {% if submission.score >= 80 %}var(--accent-success){% elif submission.score >= 60 %}var(--accent-secondary){% elif submission.score >= 40 %}var(--accent-warning){% else %}var(--accent-danger){% endif %};">
+                        0
+                    </span>
+                    <span class="feedback-gauge-label">ball / 100</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-grade {% if submission.score >= 80 %}excellent{% elif submission.score >= 60 %}good{% elif submission.score >= 40 %}average{% else %}poor{% endif %}">
+            {% if submission.score >= 90 %}A'lo natija! 🎉
+            {% elif submission.score >= 80 %}Juda yaxshi! 💪
+            {% elif submission.score >= 70 %}Yaxshi natija! 👍
+            {% elif submission.score >= 60 %}Qoniqarli 📖
+            {% elif submission.score >= 40 %}O'rtacha 📝
+            {% else %}Yaxshilash kerak 💡{% endif %}
+        </div>
+
+        <div style="margin-top:16px;">
+            <div class="card-meta" style="justify-content:center;">
+                <div class="card-meta-item">
+                    <span class="icon">📄</span>
+                    <span>{{ submission.file_name }}</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="icon">📅</span>
+                    <span>{{ submission.submitted_at.strftime('%d.%m.%Y %H:%M') if submission.submitted_at }}</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="format-badge {{ submission.file_type }}">{{ submission.file_type.upper() }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Sections -->
+    <div class="feedback-sections">
+
+        <!-- Umumiy Baholash -->
+        {% if submission.feedback %}
+        <div class="feedback-section animate-fade-in-delayed delay-1">
+            <div class="feedback-section-header">
+                <div class="feedback-section-icon criteria">📊</div>
+                <h3 class="feedback-section-title">Umumiy Baholash</h3>
+            </div>
+            <div class="feedback-section-content">{{ submission.feedback }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Kuchli Tomonlar -->
+        {% if submission.strengths %}
+        <div class="feedback-section animate-fade-in-delayed delay-2">
+            <div class="feedback-section-header">
+                <div class="feedback-section-icon strengths">💪</div>
+                <h3 class="feedback-section-title">Kuchli Tomonlar</h3>
+            </div>
+            <div class="feedback-section-content">
+                <ul class="feedback-list strengths">
+                    {% for line in submission.strengths.split('\n') %}
+                        {% if line.strip() %}
+                        <li>{{ line.strip().lstrip('•').lstrip('✓').strip() }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Zaif Tomonlar -->
+        {% if submission.weaknesses %}
+        <div class="feedback-section animate-fade-in-delayed delay-3">
+            <div class="feedback-section-header">
+                <div class="feedback-section-icon weaknesses">⚠️</div>
+                <h3 class="feedback-section-title">Zaif Tomonlar</h3>
+            </div>
+            <div class="feedback-section-content">
+                <ul class="feedback-list weaknesses">
+                    {% for line in submission.weaknesses.split('\n') %}
+                        {% if line.strip() %}
+                        <li>{{ line.strip().lstrip('•').lstrip('✗').strip() }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tavsiyalar -->
+        {% if submission.recommendations %}
+        <div class="feedback-section animate-fade-in-delayed delay-4">
+            <div class="feedback-section-header">
+                <div class="feedback-section-icon recommendations">💡</div>
+                <h3 class="feedback-section-title">Tavsiyalar</h3>
+            </div>
+            <div class="feedback-section-content">
+                <ul class="feedback-list recommendations">
+                    {% for line in submission.recommendations.split('\n') %}
+                        {% if line.strip() %}
+                        <li>{{ line.strip().lstrip('•').lstrip('→').strip() }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Batafsil Tahlil -->
+        {% if submission.detailed_analysis %}
+        <div class="feedback-section animate-fade-in-delayed delay-5">
+            <div class="feedback-section-header">
+                <div class="feedback-section-icon criteria">📝</div>
+                <h3 class="feedback-section-title">Batafsil Tahlil</h3>
+            </div>
+            <div class="feedback-section-content" style="max-height:400px;overflow-y:auto;">
+                <pre style="white-space:pre-wrap;font-family:var(--font-body);font-size:0.85rem;line-height:1.7;color:var(--text-secondary);">{{ submission.detailed_analysis }}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+        <a href="/assignment/{{ submission.assignment.id }}" class="btn btn-primary">
+            📤 Qayta Yuborish
+        </a>
+        <a href="/module/{{ submission.assignment.module.id }}" class="btn btn-secondary">
+            📦 Modulga Qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Animated gauge
+    document.addEventListener('DOMContentLoaded', () => {
+        const score = {{ submission.score|default(0)|int }};
+        const gauge = document.getElementById('feedback-gauge');
+        const valueEl = document.getElementById('gauge-value');
+
+        // Animate number
+        let current = 0;
+        const duration = 1500;
+        const start = performance.now();
+
+        function animateValue(timestamp) {
+            const elapsed = timestamp - start;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+            current = Math.round(easedProgress * score);
+            valueEl.textContent = current;
+
+            // Update gauge
+            const deg = easedProgress * score * 3.6;
+            gauge.style.setProperty('--gauge-deg', `${deg}deg`);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateValue);
+            }
+        }
+
+        setTimeout(() => requestAnimationFrame(animateValue), 300);
+    });
+</script>
+{% endblock %}

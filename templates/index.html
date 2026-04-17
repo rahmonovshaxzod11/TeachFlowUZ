@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}TeachFlowUZ — Pedagogika Ta'lim Platformasi{% endblock %}
+
+{% block breadcrumb %}
+<span class="current">🏠 Bosh sahifa</span>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero animate-fade-in">
+    <div class="hero-content">
+        <div class="hero-badge">✨ Pedagogika bo'yicha #1 platforma</div>
+        <h1>TeachFlowUZ bilan<br>Pedagogikani o'rganing</h1>
+        <p>
+            Video darslar, interaktiv testlar va AI orqali materiallaringizni tekshiring.
+            Professional pedagogik ko'nikmalarni zamonaviy texnologiyalar bilan rivojlantiring.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ modules|length }}</div>
+                <div class="hero-stat-label">Modullar</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ total_lessons }}</div>
+                <div class="hero-stat-label">Video Darslar</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ total_tests }}</div>
+                <div class="hero-stat-label">Test Savollari</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ total_assignments }}</div>
+                <div class="hero-stat-label">Topshiriqlar</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modules Section -->
+<section>
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">📦 Ta'lim Modullari</h2>
+            <p class="section-subtitle">Pedagogika bo'yicha barcha modullarni o'rganing</p>
+        </div>
+        <a href="/modules" class="btn btn-secondary btn-sm">
+            Barchasi →
+        </a>
+    </div>
+
+    <div class="cards-grid">
+        {% for module in modules %}
+        <a href="/module/{{ module.id }}" class="card animate-fade-in-delayed delay-{{ loop.index }}">
+            <div class="card-header">
+                <div class="card-icon">{{ module.icon }}</div>
+                <div>
+                    <div class="card-title">{{ module.title }}</div>
+                    <span class="card-tag">Modul {{ loop.index }}</span>
+                </div>
+            </div>
+            <p class="card-description">{{ module.description }}</p>
+            <div class="card-meta">
+                <div class="card-meta-item">
+                    <span class="icon">📹</span>
+                    <span>{{ module.lesson_count() }} dars</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="icon">📝</span>
+                    <span>{{ module.test_count() }} test</span>
+                </div>
+                <div class="card-meta-item">
+                    <span class="icon">📋</span>
+                    <span>{{ module.assignment_count() }} topshiriq</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section style="margin-top: 48px;">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">🚀 Platformaning Imkoniyatlari</h2>
+            <p class="section-subtitle">Nima uchun TeachFlowUZ?</p>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <div class="card-icon">🎬</div>
+                <div class="card-title">Video Darslar</div>
+            </div>
+            <p class="card-description">Tajribali o'qituvchilar tomonidan tayyorlangan professional video darslar orqali pedagogikani o'rganing.</p>
+        </div>
+
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <div class="card-icon">📝</div>
+                <div class="card-title">Interaktiv Testlar</div>
+            </div>
+            <p class="card-description">Har bir modul bo'yicha test savollari orqali bilimingizni tekshiring va mustahkamlang.</p>
+        </div>
+
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">AI Tekshiruv</div>
+            </div>
+            <p class="card-description">Sun'iy intellekt yordamida tayyorlagan materiallaringizni avtomatik tekshiring va baho oling.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

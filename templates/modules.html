@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Modullar — TeachFlowUZ{% endblock %}
+
+{% block breadcrumb %}
+<a href="/">TeachFlowUZ</a>
+<span class="separator">/</span>
+<span class="current">Modullar</span>
+{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <div>
+        <h2 class="section-title">📦 Barcha Modullar</h2>
+        <p class="section-subtitle">Pedagogika bo'yicha {{ modules|length }} ta modul mavjud</p>
+    </div>
+</div>
+
+<div class="cards-grid">
+    {% for module in modules %}
+    <a href="/module/{{ module.id }}" class="card animate-fade-in-delayed delay-{{ loop.index }}">
+        <div class="card-header">
+            <div class="card-icon">{{ module.icon }}</div>
+            <div>
+                <div class="card-title">{{ module.title }}</div>
+                <span class="card-tag">Modul {{ module.order }}</span>
+            </div>
+        </div>
+        <p class="card-description">{{ module.description }}</p>
+        <div class="card-meta">
+            <div class="card-meta-item">
+                <span class="icon">📹</span>
+                <span>{{ module.lesson_count() }} dars</span>
+            </div>
+            <div class="card-meta-item">
+                <span class="icon">📝</span>
+                <span>{{ module.test_count() }} test</span>
+            </div>
+            <div class="card-meta-item">
+                <span class="icon">📋</span>
+                <span>{{ module.assignment_count() }} topshiriq</span>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if not modules %}
+<div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <div class="empty-state-text">Hozircha modullar mavjud emas</div>
+    <div class="empty-state-sub">Admin panel orqali yangi modul qo'shing</div>
+</div>
+{% endif %}
+{% endblock %}
