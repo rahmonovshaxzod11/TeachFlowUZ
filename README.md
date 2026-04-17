@@ -61,9 +61,7 @@ Railway'da ishga tushirish uchun maxsus ko'rsatma:
 
 ## 🔐 Avtorizatsiya
 
-Platformada Namuna (Seed) fayllari asosida tayyor tizim yaratiladi. Default administrator akkaunti:
-> **Login:** `Aziza`
-> **Parol:** `Aziza750`
+Platformada Namuna (Seed) fayllari asosida tayyor tizim yaratiladi. 
 
 (Tizim orqali qolgan foydalanuvchilar o'zlari erkin ro'yxatdan o'tishlari mumkin).
 
